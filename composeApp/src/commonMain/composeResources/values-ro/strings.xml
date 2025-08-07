@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Title -->
+    <string name="app_title">Parser DLMS</string>
+    
+    <!-- Input Section -->
+    <string name="input_title">Intrare date DLMS/COSEM</string>
+    <string name="input_placeholder">Introduceți date hex (câte un mesaj pe linie)...\n\nExemplu:\n60 3A A1 09 06 07 60 85 74...\n61 29 A1 09 06 07 60 85 74...</string>
+    <string name="clear_input">Șterge</string>
+    <string name="parse_multiple">Analizează mesajele</string>
+    <string name="load_examples">Încarcă exemple</string>
+    <string name="input_validation_error">Format hex invalid în una sau mai multe linii</string>
+    <string name="input_line_count">%1$d linie(i)</string>
+    
+    <!-- Results Section -->
+    <string name="results_title">Mesaje analizate (%1$d)</string>
+    <string name="export_all_json">Exportă toate JSON</string>
+    <string name="copy_all_json">Copiază toate JSON</string>
+    <string name="clear_results">Șterge</string>
+    
+    <!-- Message Actions -->
+    <string name="export_json">Exportă JSON</string>
+    <string name="copy_json">Copiază JSON</string>
+    <string name="copy_raw">Copiază Raw</string>
+    
+    <!-- Status Messages -->
+    <string name="error_prefix">Eroare: %1$s</string>
+    <string name="unknown_error">Eroare necunoscută</string>
+    <string name="dismiss">Închide</string>
+    
+    <!-- History Section -->
+    <string name="history_title">Istoric</string>
+    <string name="history_clear_all">Șterge tot</string>
+    <string name="history_empty">Istoric gol</string>
+    <string name="history_messages_count">%1$d mesaje</string>
+    <string name="history_error">Eroare</string>
+    
+    <!-- Export Status Messages -->
+    <string name="export_success">Exportat în: %1$s</string>
+    <string name="export_failed">Exportul a eșuat: %1$s</string>
+    <string name="copy_success">Copiat în clipboard</string>
+    <string name="copy_json_success">Copiat în clipboard ca JSON</string>
+    <string name="copy_failed">Copierea a eșuat: %1$s</string>
+    <string name="message_copy_success">Mesajul a fost copiat în clipboard ca JSON</string>
+    <string name="message_export_success">Mesajul a fost exportat în: %1$s</string>
+    <string name="save_cancelled">Operația de salvare a fost anulată</string>
+    
+    <!-- DLMS Message Details -->
+    <string name="detail_application_context">Context aplicație</string>
+    <string name="detail_mechanism_name">Nume mecanism</string>
+    <string name="detail_dlms_version">Versiune DLMS</string>
+    <string name="detail_max_pdu_size">Dimensiune max PDU</string>
+    <string name="detail_conformance">Conformitate</string>
+    <string name="detail_association_result">Rezultat asociere</string>
+    <string name="detail_vaa_name">Nume VAA</string>
+    <string name="detail_invoke_id">ID invocare</string>
+    <string name="detail_attribute">Atribut</string>
+    <string name="detail_request_type">Tip cerere</string>
+    <string name="detail_data_type">Tip date</string>
+    <string name="detail_response_type">Tip răspuns</string>
+    <string name="detail_data">Date</string>
+    <string name="detail_method">Metodă</string>
+    <string name="detail_parameters">Parametri</string>
+    <string name="detail_parameters_count">%1$d elemente</string>
+    <string name="detail_action_result">Rezultat acțiune</string>
+    
+    <!-- Content Descriptions -->
+    <string name="content_description_history">Istoric</string>
+    <string name="content_description_theme_toggle">Schimbă tema</string>
+    <string name="content_description_language_toggle">Schimbă limba</string>
+    
+    <!-- Theme -->
+    <string name="theme_toggle">Schimbă tema</string>
+    
+    <!-- Language -->
+    <string name="language_toggle">Schimbă limba</string>
+    
+    <!-- Missing/Unknown Values -->
+    <string name="missing_value">Lipsește</string>
+    <string name="not_available">N/A</string>
+    <string name="unknown_value">Necunoscut</string>
+</resources>

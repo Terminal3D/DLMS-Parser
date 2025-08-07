@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Title -->
+    <string name="app_title">DLMS Парсер</string>
+    
+    <!-- Input Section -->
+    <string name="input_title">Ввод данных DLMS/COSEM</string>
+    <string name="input_placeholder">Введите hex данные (по одному сообщению в строке)...\n\nПример:\n60 3A A1 09 06 07 60 85 74...\n61 29 A1 09 06 07 60 85 74...</string>
+    <string name="clear_input">Очистить</string>
+    <string name="parse_multiple">Парсить сообщения</string>
+    <string name="load_examples">Загрузить примеры</string>
+    <string name="input_validation_error">Неверный hex формат в одной или нескольких строках</string>
+    <string name="input_line_count">%1$d строк(и)</string>
+    
+    <!-- Results Section -->
+    <string name="results_title">Распарсенные сообщения (%1$d)</string>
+    <string name="export_all_json">Экспорт всех JSON</string>
+    <string name="copy_all_json">Копировать все JSON</string>
+    <string name="clear_results">Очистить</string>
+    
+    <!-- Message Actions -->
+    <string name="export_json">Экспорт JSON</string>
+    <string name="copy_json">Копировать JSON</string>
+    <string name="copy_raw">Копировать Raw</string>
+    
+    <!-- Status Messages -->
+    <string name="error_prefix">Ошибка: %1$s</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="dismiss">Закрыть</string>
+    
+    <!-- History Section -->
+    <string name="history_title">История</string>
+    <string name="history_clear_all">Очистить всё</string>
+    <string name="history_empty">История пуста</string>
+    <string name="history_messages_count">%1$d сообщений</string>
+    <string name="history_error">Ошибка</string>
+    
+    <!-- Export Status Messages -->
+    <string name="export_success">Экспортировано в: %1$s</string>
+    <string name="export_failed">Ошибка экспорта: %1$s</string>
+    <string name="copy_success">Скопировано в буфер обмена</string>
+    <string name="copy_json_success">Скопировано в буфер обмена как JSON</string>
+    <string name="copy_failed">Ошибка копирования: %1$s</string>
+    <string name="message_copy_success">Сообщение скопировано в буфер обмена как JSON</string>
+    <string name="message_export_success">Сообщение экспортировано в: %1$s</string>
+    <string name="save_cancelled">Операция сохранения отменена</string>
+    
+    <!-- DLMS Message Details -->
+    <string name="detail_application_context">Контекст приложения</string>
+    <string name="detail_mechanism_name">Имя механизма</string>
+    <string name="detail_dlms_version">Версия DLMS</string>
+    <string name="detail_max_pdu_size">Макс размер PDU</string>
+    <string name="detail_conformance">Соответствие</string>
+    <string name="detail_association_result">Результат ассоциации</string>
+    <string name="detail_vaa_name">Имя VAA</string>
+    <string name="detail_invoke_id">ID вызова</string>
+    <string name="detail_attribute">Атрибут</string>
+    <string name="detail_request_type">Тип запроса</string>
+    <string name="detail_data_type">Тип данных</string>
+    <string name="detail_response_type">Тип ответа</string>
+    <string name="detail_data">Данные</string>
+    <string name="detail_method">Метод</string>
+    <string name="detail_parameters">Параметры</string>
+    <string name="detail_parameters_count">%1$d элементов</string>
+    <string name="detail_action_result">Результат действия</string>
+    
+    <!-- Content Descriptions -->
+    <string name="content_description_history">История</string>
+    <string name="content_description_theme_toggle">Переключить тему</string>
+    <string name="content_description_language_toggle">Переключить язык</string>
+    
+    <!-- Theme -->
+    <string name="theme_toggle">Переключить тему</string>
+    
+    <!-- Language -->
+    <string name="language_toggle">Переключить язык</string>
+    
+    <!-- Missing/Unknown Values -->
+    <string name="missing_value">Отсутствует</string>
+    <string name="not_available">Н/Д</string>
+    <string name="unknown_value">Неизвестно</string>
+</resources>

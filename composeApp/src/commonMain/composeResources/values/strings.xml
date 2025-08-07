@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Title -->
+    <string name="app_title">DLMS Parser</string>
+    
+    <!-- Input Section -->
+    <string name="input_title">DLMS/COSEM Data Input</string>
+    <string name="input_placeholder">Enter hex data (one message per line)...\n\nExample:\n60 3A A1 09 06 07 60 85 74...\n61 29 A1 09 06 07 60 85 74...</string>
+    <string name="clear_input">Clear Input</string>
+    <string name="parse_multiple">Parse Messages</string>
+    <string name="load_examples">Load Examples</string>
+    <string name="input_validation_error">Invalid hex format in one or more lines</string>
+    <string name="input_line_count">%1$d line(s)</string>
+    
+    <!-- Results Section -->
+    <string name="results_title">Parsed Messages (%1$d)</string>
+    <string name="export_all_json">Export All JSON</string>
+    <string name="copy_all_json">Copy All JSON</string>
+    <string name="clear_results">Clear</string>
+    
+    <!-- Message Actions -->
+    <string name="export_json">Export JSON</string>
+    <string name="copy_json">Copy JSON</string>
+    <string name="copy_raw">Copy Raw</string>
+    
+    <!-- Status Messages -->
+    <string name="error_prefix">Error: %1$s</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="dismiss">Dismiss</string>
+    
+    <!-- History Section -->
+    <string name="history_title">History</string>
+    <string name="history_clear_all">Clear All</string>
+    <string name="history_empty">No history yet</string>
+    <string name="history_messages_count">%1$d messages</string>
+    <string name="history_error">Error</string>
+    
+    <!-- Export Status Messages -->
+    <string name="export_success">Exported to: %1$s</string>
+    <string name="export_failed">Export failed: %1$s</string>
+    <string name="copy_success">Copied to clipboard</string>
+    <string name="copy_json_success">Copied to clipboard as JSON</string>
+    <string name="copy_failed">Copy failed: %1$s</string>
+    <string name="message_copy_success">Message copied to clipboard as JSON</string>
+    <string name="message_export_success">Message exported to: %1$s</string>
+    <string name="save_cancelled">Save operation cancelled</string>
+    
+    <!-- DLMS Message Details -->
+    <string name="detail_application_context">Application Context</string>
+    <string name="detail_mechanism_name">Mechanism Name</string>
+    <string name="detail_dlms_version">DLMS Version</string>
+    <string name="detail_max_pdu_size">Max PDU Size</string>
+    <string name="detail_conformance">Conformance</string>
+    <string name="detail_association_result">Association Result</string>
+    <string name="detail_vaa_name">VAA Name</string>
+    <string name="detail_invoke_id">Invoke ID</string>
+    <string name="detail_attribute">Attribute</string>
+    <string name="detail_request_type">Request Type</string>
+    <string name="detail_data_type">Data Type</string>
+    <string name="detail_response_type">Response Type</string>
+    <string name="detail_data">Data</string>
+    <string name="detail_method">Method</string>
+    <string name="detail_parameters">Parameters</string>
+    <string name="detail_parameters_count">%1$d items</string>
+    <string name="detail_action_result">Action Result</string>
+    
+    <!-- Content Descriptions -->
+    <string name="content_description_history">History</string>
+    <string name="content_description_theme_toggle">Toggle Theme</string>
+    <string name="content_description_language_toggle">Toggle Language</string>
+    
+    <!-- Theme -->
+    <string name="theme_toggle">Toggle Theme</string>
+    
+    <!-- Language -->
+    <string name="language_toggle">Toggle Language</string>
+    
+    <!-- Missing/Unknown Values -->
+    <string name="missing_value">Missing</string>
+    <string name="not_available">N/A</string>
+    <string name="unknown_value">Unknown</string>
+</resources>
