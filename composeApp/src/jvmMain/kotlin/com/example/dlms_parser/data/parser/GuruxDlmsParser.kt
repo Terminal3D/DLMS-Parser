@@ -11,7 +11,6 @@ class GuruxDlmsParser {
     private val translator = GXDLMSTranslator()
     
     companion object {
-        // Use localized values enum for consistency  
         private val MISSING_VALUE = LocalizedValues.MISSING_VALUE.getDefaultValue()
         private val NOT_AVAILABLE = LocalizedValues.NOT_AVAILABLE.getDefaultValue() 
         private val UNKNOWN = LocalizedValues.UNKNOWN_VALUE.getDefaultValue()
@@ -29,7 +28,6 @@ class GuruxDlmsParser {
                 return ParseResult.Error("Invalid hex data")
             }
             
-            // Determine DLMS command type from the first byte
             val command = detectCommand(data[0])
             
             when (command) {
@@ -59,7 +57,6 @@ class GuruxDlmsParser {
     
     private fun parseAarq(hexData: String, data: ByteArray): ParseResult<AarqMessage> {
         return try {
-            // Use Gurux translator to parse AARQ to XML
             val xml = translator.pduToXml(data)
             val jsonStructure = XmlToJsonConverter.convertXmlToJson(xml)
             
@@ -73,7 +70,7 @@ class GuruxDlmsParser {
                 callingAuthenticationValue = extractValueFromXml(xml, "CallingAuthentication") ?: NOT_AVAILABLE,
                 userInformation = extractValueFromXml(xml, "UserInformation") ?: NOT_AVAILABLE,
                 initiateRequest = InitiateRequest(
-                    responseAllowed = true, // AARQ always expects response
+                    responseAllowed = true,
                     proposedDlmsVersionNumber = extractValueFromXml(xml, "ProposedDlmsVersionNumber")?.toInt(16) ?: 0,
                     proposedConformance = extractConformanceBitsFromXml(xml),
                     clientMaxReceivePduSize = extractValueFromXml(xml, "ProposedMaxPduSize")?.toInt(16) ?: 0
@@ -117,11 +114,9 @@ class GuruxDlmsParser {
     
     private fun parseGetRequest(hexData: String, data: ByteArray): ParseResult<GetRequestMessage> {
         return try {
-            // Use Gurux translator to parse the request
             val xml = translator.pduToXml(data)
             val jsonStructure = XmlToJsonConverter.convertXmlToJson(xml)
 
-            // Extract invoke ID from PDU (third byte in DLMS GetRequest: command + type + invokeID)
             val invokeId = if (data.size > 2) data[2].toUByte().toInt() else 0
             
             val message = GetRequestMessage(
@@ -208,13 +203,11 @@ class GuruxDlmsParser {
         }
     }
     
-    // Additional DLMS commands support - create basic message classes for unsupported types
     private fun parseSetRequest(hexData: String, data: ByteArray): ParseResult<DlmsMessage> {
         return try {
             val xml = translator.pduToXml(data)
             val jsonStructure = XmlToJsonConverter.convertXmlToJson(xml)
 
-            // Create basic SetRequest message
             val message = SetRequestMessage(rawData = hexData, xmlStructure = jsonStructure, originalXml = xml)
             
             ParseResult.Success(message)
@@ -271,14 +264,12 @@ class GuruxDlmsParser {
     }
     
     
-    // Extract values from XML attributes (for Gurux XML format like <Tag Value="..." />)
     private fun extractValueFromXml(xml: String, tagName: String): String? {
         val pattern = "<$tagName[^>]*Value\\s*=\\s*\"([^\"]*)\"".toRegex(RegexOption.IGNORE_CASE)
         val match = pattern.find(xml)
         return match?.groupValues?.get(1)?.trim()
     }
     
-    // Extract conformance bits from XML structure
     private fun extractConformanceBitsFromXml(xml: String): List<String> {
         val conformanceBits = mutableListOf<String>()
         val conformancePattern = "<ConformanceBit Name=\"([^\"]*)\">".toRegex(RegexOption.IGNORE_CASE)
@@ -292,20 +283,17 @@ class GuruxDlmsParser {
     
     
     private fun extractAttributeFromXml(xml: String): String? {
-        // GetRequest contains AttributeDescriptor with ClassId, InstanceId, AttributeId
         val classId = extractValueFromXml(xml, "ClassId")
         val instanceId = extractValueFromXml(xml, "InstanceId")  
         val attributeId = extractValueFromXml(xml, "AttributeId")
         
         if (classId != null && instanceId != null && attributeId != null) {
-            // Convert to OBIS format: ClassId:A-B:C.D.E*AttributeId where InstanceId is A-B:C.D.E*F
             val classValue = classId.toInt(16)
             val attributeValue = attributeId.toInt(16)
             val obisCode = formatInstanceIdToObis(instanceId)
             return "$classValue:$obisCode:$attributeValue"
         }
         
-        // Fallback to old methods
         return tryExtractFromXml(xml, listOf("AttributeDescriptor", "CosemAttributeDescriptor", "attribute"))
     }
     
@@ -317,9 +305,7 @@ class GuruxDlmsParser {
         return tryExtractFromXml(xml, listOf("Data", "data", "value"))
     }
     
-    // Specific methods for GetResponse parsing from correct XML structure
     private fun extractGetResponseDataType(xml: String): String {
-        // GetResponse structure: GetResponse/GetResponseNormal/Result/Data/{DataType}
         return when {
             xml.contains("<OctetString") -> "OCTET_STRING"
             xml.contains("<UInt32") -> "UINT32" 
@@ -337,16 +323,12 @@ class GuruxDlmsParser {
     }
     
     private fun extractGetResponseData(xml: String): String {
-        // GetResponse structure: GetResponse/GetResponseNormal/Result/Data/{DataType}/{Value}
-        // Try different data types
         
-        // OctetString
         val octetStringValue = extractValueFromXml(xml, "OctetString")
         if (octetStringValue != null) {
             return octetStringValue
         }
         
-        // Numeric types
         val uint32Value = extractValueFromXml(xml, "UInt32")
         if (uint32Value != null) {
             return uint32Value
@@ -367,13 +349,11 @@ class GuruxDlmsParser {
             return integerValue
         }
         
-        // Boolean
         val booleanValue = extractValueFromXml(xml, "Boolean")
         if (booleanValue != null) {
             return booleanValue
         }
         
-        // DateTime/Date/Time
         val dateTimeValue = extractValueFromXml(xml, "DateTime")
         if (dateTimeValue != null) {
             return dateTimeValue
@@ -393,20 +373,17 @@ class GuruxDlmsParser {
     }
     
     private fun extractMethodFromXml(xml: String): String? {
-        // ActionRequest contains MethodDescriptor with ClassId, InstanceId, MethodId
         val classId = extractValueFromXml(xml, "ClassId")
         val instanceId = extractValueFromXml(xml, "InstanceId")
         val methodId = extractValueFromXml(xml, "MethodId")
         
         if (classId != null && instanceId != null && methodId != null) {
-            // Convert to OBIS format: ClassId:A-B:C.D.E*F:G where InstanceId is A-B:C.D.E format
             val classValue = classId.toInt(16)
             val methodValue = methodId.toInt(16)
             val obisCode = formatInstanceIdToObis(instanceId)
             return "$classValue:$obisCode:$methodValue"
         }
         
-        // Fallback to old methods
         return tryExtractFromXml(xml, listOf("MethodDescriptor", "method", "cosemMethodDescriptor"))
     }
     
@@ -414,10 +391,8 @@ class GuruxDlmsParser {
         val parametersXml = tryExtractFromXml(xml, listOf("MethodInvocationParameters", "parameters", "data"))
         
         return if (parametersXml != null) {
-            // Try to parse actual parameters from XML
             ActionParameters(structure = parseStructureFromXml(parametersXml))
         } else {
-            // Return empty structure when parameters are not available
             ActionParameters(structure = emptyList())
         }
     }
@@ -447,19 +422,15 @@ class GuruxDlmsParser {
     }
     
     private fun parseStructureFromXml(xml: String): List<ActionParameter> {
-        // Parse structure elements from XML using Value attributes (Gurux format)
         val elements = mutableListOf<ActionParameter>()
         
-        // Look for common DLMS data types with Value attribute
         val octetStringPattern = "<OctetString[^>]*Value\\s*=\\s*\"([^\"]*)\"".toRegex(RegexOption.IGNORE_CASE)
         val uint32Pattern = "<UInt32[^>]*Value\\s*=\\s*\"([^\"]*)\"".toRegex(RegexOption.IGNORE_CASE)
         val uint16Pattern = "<UInt16[^>]*Value\\s*=\\s*\"([^\"]*)\"".toRegex(RegexOption.IGNORE_CASE)
         val unsignedPattern = "<Unsigned[^>]*Value\\s*=\\s*\"([^\"]*)\"".toRegex(RegexOption.IGNORE_CASE)
         
-        // Extract OctetString values
         octetStringPattern.findAll(xml).forEach { match ->
             val hexValue = match.groupValues[1]
-            // Convert hex to ASCII string if possible, otherwise keep hex
             val stringValue = try {
                 hexValue.chunked(2).map { it.toInt(16).toChar() }.joinToString("")
             } catch (e: Exception) {
@@ -468,21 +439,18 @@ class GuruxDlmsParser {
             elements.add(ActionParameter.OctetString(stringValue))
         }
         
-        // Extract UInt32 values  
         uint32Pattern.findAll(xml).forEach { match ->
             val hexValue = match.groupValues[1]
             val value = hexValue.toLong(16)
             elements.add(ActionParameter.DoubleLongUnsigned(value))
         }
         
-        // Extract UInt16 values
         uint16Pattern.findAll(xml).forEach { match ->
             val hexValue = match.groupValues[1]
             val value = hexValue.toLong(16)
             elements.add(ActionParameter.DoubleLongUnsigned(value))
         }
         
-        // Extract other Unsigned values
         unsignedPattern.findAll(xml).forEach { match ->
             val value = match.groupValues[1].toLongOrNull(16) ?: 0L
             elements.add(ActionParameter.DoubleLongUnsigned(value))
@@ -496,7 +464,6 @@ class GuruxDlmsParser {
         val conformanceBits = mutableListOf<String>()
         val conformancePattern = "<ConformanceBit Name=\"([^\"]*)\">".toRegex(RegexOption.IGNORE_CASE)
         
-        // Look specifically in the NegotiatedConformance section
         val negotiatedSection = "<NegotiatedConformance>.*?</NegotiatedConformance>".toRegex(RegexOption.DOT_MATCHES_ALL).find(xml)?.value
         if (negotiatedSection != null) {
             conformancePattern.findAll(negotiatedSection).forEach { match ->
@@ -508,28 +475,25 @@ class GuruxDlmsParser {
     }
     
     private fun extractResultSourceDiagnosticFromXml(xml: String): String {
-        // Look for ACSEServiceUser value in ResultSourceDiagnostic section
         val acseValue = extractValueFromXml(xml, "ACSEServiceUser")
         return acseValue ?: NOT_AVAILABLE
     }
     
-    // Convert application context name from human readable to OID
     private fun convertApplicationContextName(contextName: String?): String {
         return when (contextName?.uppercase()) {
-            "LN" -> "2.16.756.5.8.1.1"  // Logical Name referencing
-            "SN" -> "2.16.756.5.8.1.2"  // Short Name referencing  
+            "LN" -> "2.16.756.5.8.1.1"
+            "SN" -> "2.16.756.5.8.1.2"
             else -> contextName ?: NOT_AVAILABLE
         }
     }
     
-    // Convert mechanism name from human readable to OID
     private fun convertMechanismName(mechanismName: String?): String {
         return when (mechanismName?.uppercase()) {
-            "LOW" -> "2.16.756.5.8.2.1"    // Low Level Security
-            "HIGH" -> "2.16.756.5.8.2.2"   // High Level Security
-            "HLS_MD5" -> "2.16.756.5.8.2.3"  // HLS MD5
-            "HLS_SHA1" -> "2.16.756.5.8.2.4"  // HLS SHA1
-            "HLS_GMAC" -> "2.16.756.5.8.2.5"  // HLS GMAC
+            "LOW" -> "2.16.756.5.8.2.1"
+            "HIGH" -> "2.16.756.5.8.2.2"
+            "HLS_MD5" -> "2.16.756.5.8.2.3"
+            "HLS_SHA1" -> "2.16.756.5.8.2.4"
+            "HLS_GMAC" -> "2.16.756.5.8.2.5"
             else -> mechanismName ?: NOT_AVAILABLE
         }
     }
@@ -544,15 +508,10 @@ class GuruxDlmsParser {
         }
     }
     
-    /**
-     * Converts hex InstanceId to OBIS code format (A-B:C.D.E*F)
-     * InstanceId is usually 6 bytes: AA BB CC DD EE FF -> A-B:C.D.E*F
-     */
     private fun formatInstanceIdToObis(instanceId: String): String {
         return try {
-            // Remove any spaces and ensure even length
             val cleanHex = instanceId.replace(" ", "").uppercase()
-            if (cleanHex.length == 12) { // 6 bytes = 12 hex chars
+            if (cleanHex.length == 12) {
                 val a = cleanHex.substring(0, 2).toInt(16)
                 val b = cleanHex.substring(2, 4).toInt(16)  
                 val c = cleanHex.substring(4, 6).toInt(16)
@@ -561,11 +520,9 @@ class GuruxDlmsParser {
                 val f = cleanHex.substring(10, 12).toInt(16)
                 "$a-$b:$c.$d.$e*$f"
             } else {
-                // If not 6 bytes, return as is
                 instanceId
             }
         } catch (e: Exception) {
-            // If parsing fails, return original
             instanceId
         }
     }

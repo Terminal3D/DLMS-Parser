@@ -46,7 +46,6 @@ class DlmsParserViewModel(
     val state: StateFlow<DlmsParserState> = _state.asStateFlow()
     
     init {
-        // Load history and theme preference on initialization
         viewModelScope.launch {
             historyUseCase.getHistory().collect { history ->
                 _state.value = _state.value.copy(history = history)
@@ -62,7 +61,6 @@ class DlmsParserViewModel(
         viewModelScope.launch {
             themePreferencesRepository.getLanguage().collect { language ->
                 _state.value = _state.value.copy(currentLanguage = language)
-                // Apply locale immediately when language changes
                 localeRepository.setLocale(language)
             }
         }
@@ -73,7 +71,6 @@ class DlmsParserViewModel(
         val isValid = if (text.isBlank()) {
             true
         } else {
-            // Validate each non-empty line separately for multiple messages
             val lines = text.lines().map { it.trim() }.filter { it.isNotBlank() }
             lines.all { validateHexDataUseCase.execute(it) }
         }
@@ -100,7 +97,6 @@ class DlmsParserViewModel(
                         parsedMessages = messages,
                         errorMessage = null
                     )
-                    // Save to history
                     historyUseCase.saveParseResult(input, messages, true)
                 }
                 is ParseResult.Error -> {
@@ -108,7 +104,6 @@ class DlmsParserViewModel(
                         isLoading = false,
                         errorMessage = result.message
                     )
-                    // Save error to history
                     historyUseCase.saveParseResult(input, emptyList(), false, result.message)
                 }
             }
@@ -135,7 +130,6 @@ class DlmsParserViewModel(
                         parsedMessages = result.data,
                         errorMessage = null
                     )
-                    // Save to history
                     historyUseCase.saveParseResult(input, result.data, true)
                 }
                 is ParseResult.Error -> {
@@ -143,7 +137,6 @@ class DlmsParserViewModel(
                         isLoading = false,
                         errorMessage = result.message
                     )
-                    // Save error to history
                     historyUseCase.saveParseResult(input, emptyList(), false, result.message)
                 }
             }

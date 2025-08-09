@@ -17,7 +17,6 @@ data class ParseHistory(
     val entries: List<ParseHistoryEntry> = emptyList()
 ) {
     fun addEntry(entry: ParseHistoryEntry): ParseHistory {
-        // Keep only last 100 entries
         val updatedEntries = (listOf(entry) + entries).take(100)
         return copy(entries = updatedEntries)
     }

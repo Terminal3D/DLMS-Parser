@@ -3,6 +3,7 @@ package com.example.dlms_parser.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,9 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.dlms_parser.domain.model.ViewFormat
 
-/**
- * Компонент для отображения XML/JSON структуры с подсветкой синтаксиса (скрываемый)
- */
 @Composable
 fun StructureViewer(
     json: String,
@@ -34,7 +32,7 @@ fun StructureViewer(
     globalFormat: ViewFormat = ViewFormat.JSON,
     modifier: Modifier = Modifier
 ) {
-    var isExpanded by remember { mutableStateOf(false) } // По умолчанию скрыто
+    var isExpanded by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
     
@@ -43,7 +41,6 @@ fun StructureViewer(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column {
-            // Заголовок с шевроном
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -62,12 +59,11 @@ fun StructureViewer(
                 
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = if (isExpanded) "Скрыть структуру" else "Показать структуру",
+                    contentDescription = if (isExpanded) "" else "",
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
             
-            // Контент с подсветкой (только когда развернуто)
             if (isExpanded) {
                 SelectionContainer {
                     Box(
@@ -102,9 +98,6 @@ fun StructureViewer(
     }
 }
 
-/**
- * Добавляет подсветку синтаксиса для XML строки
- */
 private fun AnnotatedString.Builder.appendXmlWithSyntaxHighlighting(xml: String) {
     var i = 0
     while (i < xml.length) {
@@ -112,19 +105,18 @@ private fun AnnotatedString.Builder.appendXmlWithSyntaxHighlighting(xml: String)
         
         when {
             char == '<' && i + 1 < xml.length && xml[i + 1] == '!' -> {
-                // XML комментарии <!--...-->
                 val start = i
                 var end = i + 4
                 while (end < xml.length - 2 && xml.substring(end, end + 3) != "-->") {
                     end++
                 }
                 if (end < xml.length - 2) {
-                    end += 3 // Включаем -->
+                    end += 3
                 }
                 
                 withStyle(
                     style = SpanStyle(
-                        color = Color(0xFF9E9E9E), // Серый
+                        color = Color(0xFF9E9E9E),
                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                     )
                 ) {
@@ -134,20 +126,19 @@ private fun AnnotatedString.Builder.appendXmlWithSyntaxHighlighting(xml: String)
             }
             
             char == '<' -> {
-                // XML теги
                 val start = i
-                i++ // Пропускаем <
+                i++
                 
                 while (i < xml.length && xml[i] != '>') {
                     i++
                 }
-                if (i < xml.length) i++ // Включаем >
+                if (i < xml.length) i++
                 
                 val tagContent = xml.substring(start, i)
                 
                 withStyle(
                     style = SpanStyle(
-                        color = Color(0xFF2196F3), // Синий
+                        color = Color(0xFF2196F3),
                         fontWeight = FontWeight.Bold
                     )
                 ) {
@@ -156,7 +147,6 @@ private fun AnnotatedString.Builder.appendXmlWithSyntaxHighlighting(xml: String)
             }
             
             else -> {
-                // Остальные символы
                 append(char)
                 i++
             }
@@ -164,7 +154,6 @@ private fun AnnotatedString.Builder.appendXmlWithSyntaxHighlighting(xml: String)
     }
 }
 
-// Добавим совместимость для старого названия
 @Composable
 fun JsonViewer(
     json: String,
@@ -177,9 +166,6 @@ fun JsonViewer(
     )
 }
 
-/**
- * Добавляет подсветку синтаксиса для JSON строки
- */
 private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: String) {
     var i = 0
     while (i < json.length) {
@@ -187,14 +173,12 @@ private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: Strin
         
         when (char) {
             '"' -> {
-                // Обработка строк
                 val start = i
-                i++ // Пропускаем открывающую кавычку
+                i++
                 
-                // Ищем закрывающую кавычку, учитывая экранированные символы
                 while (i < json.length) {
                     if (json[i] == '"' && (i == 0 || json[i-1] != '\\')) {
-                        i++ // Включаем закрывающую кавычку
+                        i++
                         break
                     }
                     i++
@@ -202,13 +186,12 @@ private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: Strin
                 
                 val stringValue = json.substring(start, i)
                 
-                // Определяем, является ли это ключом или значением
                 val isKey = start > 0 && json.substring(0, start).trimEnd().endsWith('{') ||
                            json.substring(0, start).trimEnd().endsWith(',')
                 
                 withStyle(
                     style = SpanStyle(
-                        color = if (isKey) Color(0xFF9C27B0) else Color(0xFF4CAF50), // Фиолетовый для ключей, зеленый для значений
+                        color = if (isKey) Color(0xFF9C27B0) else Color(0xFF4CAF50),
                         fontWeight = if (isKey) FontWeight.Medium else FontWeight.Normal
                     )
                 ) {
@@ -217,10 +200,9 @@ private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: Strin
             }
             
             '{', '}', '[', ']' -> {
-                // Фигурные и квадратные скобки
                 withStyle(
                     style = SpanStyle(
-                        color = Color(0xFF2196F3), // Синий
+                        color = Color(0xFF2196F3),
                         fontWeight = FontWeight.Bold
                     )
                 ) {
@@ -230,10 +212,9 @@ private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: Strin
             }
             
             ':', ',' -> {
-                // Разделители
                 withStyle(
                     style = SpanStyle(
-                        color = Color(0xFF607D8B) // Серо-синий
+                        color = Color(0xFF607D8B)
                     )
                 ) {
                     append(char)
@@ -242,7 +223,6 @@ private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: Strin
             }
             
             in '0'..'9', '-', '.' -> {
-                // Числа
                 val start = i
                 while (i < json.length && (json[i].isDigit() || json[i] in "-.")) {
                     i++
@@ -250,7 +230,7 @@ private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: Strin
                 
                 withStyle(
                     style = SpanStyle(
-                        color = Color(0xFFFF5722) // Оранжево-красный
+                        color = Color(0xFFFF5722)
                     )
                 ) {
                     append(json.substring(start, i))
@@ -258,13 +238,12 @@ private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: Strin
             }
             
             't', 'f', 'n' -> {
-                // Логические значения и null
                 val remaining = json.substring(i)
                 when {
                     remaining.startsWith("true") -> {
                         withStyle(
                             style = SpanStyle(
-                                color = Color(0xFF4CAF50), // Зеленый
+                                color = Color(0xFF4CAF50),
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
@@ -275,7 +254,7 @@ private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: Strin
                     remaining.startsWith("false") -> {
                         withStyle(
                             style = SpanStyle(
-                                color = Color(0xFFF44336), // Красный
+                                color = Color(0xFFF44336),
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
@@ -286,7 +265,7 @@ private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: Strin
                     remaining.startsWith("null") -> {
                         withStyle(
                             style = SpanStyle(
-                                color = Color(0xFF9E9E9E), // Серый
+                                color = Color(0xFF9E9E9E),
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
@@ -302,7 +281,6 @@ private fun AnnotatedString.Builder.appendJsonWithSyntaxHighlighting(json: Strin
             }
             
             else -> {
-                // Остальные символы (пробелы, переносы строк и т.д.)
                 append(char)
                 i++
             }

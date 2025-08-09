@@ -40,7 +40,6 @@ class ExportRepositoryImpl : ExportRepository {
                 xmlBuilder.append("    <Type>${message.type}</Type>\n")
                 xmlBuilder.append("    <RawData>${message.rawData}</RawData>\n")
                 
-                // Use original XML if available, otherwise indicate JSON structure
                 if (message.originalXml != null) {
                     xmlBuilder.append("    <Structure>\n")
                     xmlBuilder.append("      <![CDATA[${message.originalXml}]]>\n")

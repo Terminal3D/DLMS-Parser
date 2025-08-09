@@ -34,7 +34,6 @@ fun App() {
 
     DlmsParserTheme(darkTheme = state.isDarkTheme) {
         LanguageProvider(language = state.currentLanguage) {
-            // Use language as key to force full recomposition on language change
             key(state.currentLanguage) {
                 Box(
                     modifier = Modifier.fillMaxSize()
@@ -42,13 +41,11 @@ fun App() {
             Row(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Main content - horizontal layout
                 Column(
                     modifier = Modifier
                         .weight(if (state.showHistory) 0.7f else 1f)
                         .fillMaxHeight()
                 ) {
-                    // Top App Bar
                     TopAppBar(
                         title = { 
                             Text(
@@ -85,7 +82,6 @@ fun App() {
                         )
                     )
                     
-                    // Status Messages
                     StatusSection(
                         errorMessage = state.errorMessage,
                         exportStatus = state.exportStatus,
@@ -93,14 +89,12 @@ fun App() {
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                     
-                    // Horizontal layout: Input left, Results right
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Input Section (Left)
                         InputSection(
                             state = state,
                             onInputChange = viewModel::updateInputText,
@@ -110,7 +104,6 @@ fun App() {
                             modifier = Modifier.weight(1f)
                         )
                         
-                        // Results Section (Right)
                         if (state.parsedMessages.isNotEmpty()) {
                             ResultsSection(
                                 messages = state.parsedMessages,
@@ -128,7 +121,6 @@ fun App() {
                     }
                 }
                 
-                // History Sidebar
                 AnimatedVisibility(
                     visible = state.showHistory,
                     enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),

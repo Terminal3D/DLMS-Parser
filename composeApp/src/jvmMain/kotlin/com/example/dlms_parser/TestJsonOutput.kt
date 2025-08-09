@@ -7,7 +7,6 @@ import com.example.dlms_parser.domain.model.ActionRequestMessage
 fun main() {
     val parser = GuruxDlmsParser()
     
-    // Test ActionRequest parsing with JSON output
     val actionRequestHex = "C3 01 42 00 12 00 00 2C 00 00 FF 01 01 02 02 09 1E 4B 46 4D 41 44 32 31 4E 5F 45 56 4E 5F 42 47 5F 32 4B 5F 38 4D 5F 44 53 5F 76 39 30 30 39 06 00 05 A0 B2"
     
     val result = parser.parseHexData(actionRequestHex)

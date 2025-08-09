@@ -1,6 +1,5 @@
 package com.example.dlms_parser.domain.model
 
-// Enum for localized values that can be used in parser and then localized in UI
 enum class LocalizedValues {
     MISSING_VALUE,
     NOT_AVAILABLE,

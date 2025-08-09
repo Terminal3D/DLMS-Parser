@@ -15,7 +15,6 @@ import org.jetbrains.compose.resources.stringResource
 import dlms_parser.composeapp.generated.resources.Res
 import dlms_parser.composeapp.generated.resources.*
 
-// Data classes для извлеченной информации из XML
 data class ActionRequestXmlData(
     val invokeIdAndPriority: String? = null,
     val classId: String? = null,
@@ -51,7 +50,6 @@ data class GetResponseXmlData(
     val octetStringValue: String? = null
 )
 
-// Функция для извлечения значений из XML без fallback'ов
 private fun parseActionRequestXml(xml: String?): ActionRequestXmlData {
     if (xml == null) return ActionRequestXmlData()
     
@@ -67,17 +65,14 @@ private fun parseActionRequestXml(xml: String?): ActionRequestXmlData {
     return data
 }
 
-// Простая функция извлечения значения атрибута Value из XML тега
 private fun extractXmlValue(xml: String, tagName: String): String? {
     val pattern = """<$tagName[^>]*Value="([^"]*)"[^>]*>""".toRegex()
     return pattern.find(xml)?.groupValues?.get(1)
 }
 
-// Функция для парсинга AARE XML данных
 private fun parseAareXml(xml: String?): AareXmlData {
     if (xml == null) return AareXmlData()
     
-    // Извлекаем ConformanceBits
     val conformanceBits = mutableListOf<String>()
     val conformancePattern = """<ConformanceBit Name="([^"]*)"[^>]*>""".toRegex()
     conformancePattern.findAll(xml).forEach { match ->
@@ -95,11 +90,9 @@ private fun parseAareXml(xml: String?): AareXmlData {
     )
 }
 
-// Функция для парсинга AARQ XML данных
 private fun parseAarqXml(xml: String?): AarqXmlData {
     if (xml == null) return AarqXmlData()
     
-    // Извлекаем Proposed ConformanceBits
     val proposedConformanceBits = mutableListOf<String>()
     val conformancePattern = """<ConformanceBit Name="([^"]*)"[^>]*>""".toRegex()
     conformancePattern.findAll(xml).forEach { match ->
@@ -118,7 +111,6 @@ private fun parseAarqXml(xml: String?): AarqXmlData {
     )
 }
 
-// Функция для парсинга GetResponse XML данных
 private fun parseGetResponseXml(xml: String?): GetResponseXmlData {
     if (xml == null) return GetResponseXmlData()
     
@@ -128,7 +120,6 @@ private fun parseGetResponseXml(xml: String?): GetResponseXmlData {
     )
 }
 
-// Функция для декодирования hex строки в ASCII (без fallback)
 private fun tryDecodeHexToAscii(hexString: String): String? {
     return try {
         val decoded = hexString.chunked(2).map { it.toInt(16).toChar() }.joinToString("")
@@ -138,7 +129,6 @@ private fun tryDecodeHexToAscii(hexString: String): String? {
     }
 }
 
-// Маппинг для Application Context Name
 private fun mapApplicationContextName(value: String): String {
     return when (value.uppercase()) {
         "LN" -> "Logical Name"
@@ -147,7 +137,6 @@ private fun mapApplicationContextName(value: String): String {
     }
 }
 
-// Маппинг для Association Result
 private fun mapAssociationResult(value: String): String {
     return when (value) {
         "00" -> "Accepted"
@@ -157,7 +146,6 @@ private fun mapAssociationResult(value: String): String {
     }
 }
 
-// Маппинг для ACSE Service User
 private fun mapAcseServiceUser(value: String): String {
     return when (value) {
         "00" -> "No reason given"
@@ -167,7 +155,6 @@ private fun mapAcseServiceUser(value: String): String {
     }
 }
 
-// Маппинг для Sender ACSE Requirements
 private fun mapSenderAcseRequirements(value: String): String {
     return when (value) {
         "0" -> "No authentication"
@@ -176,7 +163,6 @@ private fun mapSenderAcseRequirements(value: String): String {
     }
 }
 
-// Функция анализа OctetString - попытка извлечь различные типы данных
 data class OctetStringAnalysis(
     val rawHex: String,
     val asciiDecoding: String? = null,
@@ -184,8 +170,8 @@ data class OctetStringAnalysis(
     val possibleObisCode: String? = null,
     val possibleMeterSerial: String? = null,
     val structureInfo: String? = null,
-    val hasReadableInterpretation: Boolean = false, // Есть ли уверенная интерпретация
-    val primaryDisplay: String? = null // Основное отображение вместо raw данных
+    val hasReadableInterpretation: Boolean = false,
+    val primaryDisplay: String? = null
 )
 
 private fun analyzeOctetString(hexString: String): OctetStringAnalysis {
@@ -200,7 +186,6 @@ private fun analyzeOctetString(hexString: String): OctetStringAnalysis {
     var hasReadableInterpretation = false
     var primaryDisplay: String? = null
     
-    // Попытка ASCII декодирования (более строгая проверка)
     asciiDecoding = try {
         val decoded = hexString.chunked(2).map { it.toInt(16).toChar() }.joinToString("")
         if (decoded.length >= 3 && decoded.all { it.isLetterOrDigit() || it in " _-." }) {
@@ -212,15 +197,14 @@ private fun analyzeOctetString(hexString: String): OctetStringAnalysis {
         null
     }
     
-    // Проверка на возможную структуру даты/времени DLMS (более уверенная)
-    possibleTimestamp = if (hexString.length >= 24 && hexString.startsWith("07")) { // 12 bytes = 24 hex chars
+    possibleTimestamp = if (hexString.length >= 24 && hexString.startsWith("07")) {
         try {
             val bytes = hexString.chunked(2).map { it.toInt(16) }
             if (bytes.size >= 12) {
                 val year = (bytes[0] shl 8) or bytes[1]
                 val month = bytes[2]
                 val day = bytes[3]
-                val hour = bytes[5] // bytes[4] обычно dayOfWeek
+                val hour = bytes[5]
                 val minute = bytes[6]
                 val second = bytes[7]
                 
@@ -238,14 +222,12 @@ private fun analyzeOctetString(hexString: String): OctetStringAnalysis {
         }
     } else null
     
-    // Проверка на OBIS код (более строгая - проверяем разумные значения)
-    possibleObisCode = if (hexString.length >= 12) { // 6 bytes
+    possibleObisCode = if (hexString.length >= 12) {
         try {
             val bytes = hexString.chunked(2).map { it.toInt(16) }
             if (bytes.size >= 6) {
-                // OBIS коды обычно имеют ограниченные диапазоны значений
                 val obisCode = "${bytes[0]}.${bytes[1]}.${bytes[2]}.${bytes[3]}.${bytes[4]}.${bytes[5]}"
-                if (bytes[0] in 0..255 && bytes[1] in 0..255 && bytes[5] == 255) { // Часто заканчиваются на FF
+                if (bytes[0] in 0..255 && bytes[1] in 0..255 && bytes[5] == 255) {
                     if (!hasReadableInterpretation) {
                         hasReadableInterpretation = true
                         primaryDisplay = "OBIS Code: $obisCode"
@@ -258,7 +240,6 @@ private fun analyzeOctetString(hexString: String): OctetStringAnalysis {
         }
     } else null
     
-    // Анализ структуры данных по первому байту (более детальный)
     structureInfo = try {
         val firstByte = hexString.substring(0, 2).toInt(16)
         when (firstByte) {
@@ -271,9 +252,8 @@ private fun analyzeOctetString(hexString: String): OctetStringAnalysis {
                 "OctetString type"
             }
             0x0A -> {
-                // VisibleString - пытаемся декодировать содержимое
                 if (hexString.length > 4) {
-                    val content = hexString.substring(4) // Пропускаем тип и длину
+                    val content = hexString.substring(4)
                     val decoded = tryDecodeHexToAscii(content)
                     if (decoded != null) {
                         primaryDisplay = "Text: $decoded"
@@ -283,7 +263,6 @@ private fun analyzeOctetString(hexString: String): OctetStringAnalysis {
                 "VisibleString type"
             }
             0x0C -> {
-                // UTF8String
                 if (hexString.length > 4) {
                     val content = hexString.substring(4)
                     val decoded = tryDecodeHexToAscii(content)
@@ -319,7 +298,7 @@ private fun analyzeOctetString(hexString: String): OctetStringAnalysis {
         asciiDecoding = asciiDecoding,
         possibleTimestamp = possibleTimestamp,
         possibleObisCode = possibleObisCode,
-        possibleMeterSerial = null, // Не используется пока
+        possibleMeterSerial = null,
         structureInfo = structureInfo,
         hasReadableInterpretation = hasReadableInterpretation,
         primaryDisplay = primaryDisplay
@@ -367,14 +346,18 @@ fun MessageCard(
                     )
                 }
                 
+                Spacer(Modifier.width(12.dp))
+                
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Export
                     OutlinedButton(
                         onClick = { onExportAsJson(message) },
-                        modifier = Modifier.height(32.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                        modifier = Modifier
+                            .height(32.dp)
+                            .weight(1f),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
                             when (globalFormat) {
@@ -387,11 +370,12 @@ fun MessageCard(
                         )
                     }
                     
-                    // Copy
                     OutlinedButton(
                         onClick = { onCopyAsJson(message) },
-                        modifier = Modifier.height(32.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                        modifier = Modifier
+                            .height(32.dp)
+                            .weight(1f),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
                             when (globalFormat) {
@@ -404,11 +388,12 @@ fun MessageCard(
                         )
                     }
                     
-                    // Copy Raw
                     OutlinedButton(
                         onClick = { onCopyText(message.rawData) },
-                        modifier = Modifier.height(32.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                        modifier = Modifier
+                            .height(32.dp)
+                            .weight(1f),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
                             stringResource(Res.string.copy_raw),
@@ -445,39 +430,32 @@ private fun AarqDetails(message: AarqMessage, globalFormat: ViewFormat) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Основная информация
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Application Context Name из XML или fallback
             xmlData.applicationContextName?.let { value ->
                 DetailRow("Application Context Name", mapApplicationContextName(value))
             } ?: run {
                 DetailRow(stringResource(Res.string.detail_application_context), message.applicationContextName)
             }
             
-            // Calling AP Title
             xmlData.callingAPTitle?.let { value ->
                 if (value.isNotEmpty()) {
                     DetailRow("Calling AP Title", value)
                 }
             }
             
-            // Sender ACSE Requirements
             xmlData.senderACSERequirements?.let { value ->
                 DetailRow("Sender ACSE Requirements", "${mapSenderAcseRequirements(value)} (0x$value)")
             }
             
-            // Mechanism Name
             xmlData.mechanismName?.let { value ->
                 DetailRow("Mechanism Name", value)
             } ?: run {
                 DetailRow(stringResource(Res.string.detail_mechanism_name), message.mechanismName)
             }
             
-            // Calling Authentication
             xmlData.callingAuthentication?.let { value ->
-                // Попробуем декодировать как ASCII если возможно
                 tryDecodeHexToAscii(value)?.let { decoded ->
                     DetailRow("Calling Authentication", "$decoded (0x$value)")
                 } ?: run {
@@ -485,7 +463,6 @@ private fun AarqDetails(message: AarqMessage, globalFormat: ViewFormat) {
                 }
             }
             
-            // Initiate Request Details
             Text(
                 text = "Initiate Request:",
                 style = MaterialTheme.typography.labelMedium,
@@ -493,7 +470,6 @@ private fun AarqDetails(message: AarqMessage, globalFormat: ViewFormat) {
                 modifier = Modifier.padding(top = 8.dp)
             )
             
-            // Proposed DLMS Version
             xmlData.proposedDlmsVersionNumber?.let { value ->
                 val versionNum = value.toIntOrNull(16)
                 DetailRow("Proposed DLMS Version", "${versionNum ?: value} (0x$value)")
@@ -501,7 +477,6 @@ private fun AarqDetails(message: AarqMessage, globalFormat: ViewFormat) {
                 DetailRow(stringResource(Res.string.detail_dlms_version), message.initiateRequest.proposedDlmsVersionNumber.toString())
             }
             
-            // Proposed Conformance
             if (xmlData.proposedConformanceBits.isNotEmpty()) {
                 Text(
                     text = "Proposed Conformance:",
@@ -520,7 +495,6 @@ private fun AarqDetails(message: AarqMessage, globalFormat: ViewFormat) {
                 DetailRow(stringResource(Res.string.detail_conformance), message.initiateRequest.proposedConformance.joinToString(", "))
             }
             
-            // Proposed Max PDU Size
             xmlData.proposedMaxPduSize?.let { value ->
                 val sizeValue = value.toIntOrNull(16)
                 DetailRow("Proposed Max PDU Size", "${sizeValue ?: value} bytes (0x$value)")
@@ -529,7 +503,6 @@ private fun AarqDetails(message: AarqMessage, globalFormat: ViewFormat) {
             }
         }
         
-        // JSON/XML структура
         message.xmlStructure?.let { xmlStructure ->
             StructureViewer(
                 json = xmlStructure,
@@ -547,30 +520,25 @@ private fun AareDetails(message: AareMessage, globalFormat: ViewFormat) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Основная информация
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Application Context Name из XML или fallback
             xmlData.applicationContextName?.let { value ->
                 DetailRow("Application Context Name", mapApplicationContextName(value))
             } ?: run {
                 DetailRow(stringResource(Res.string.detail_application_context), message.applicationContextName)
             }
             
-            // Association Result
             xmlData.associationResult?.let { value ->
                 DetailRow("Association Result", "${mapAssociationResult(value)} (0x$value)")
             } ?: run {
                 DetailRow(stringResource(Res.string.detail_association_result), message.associationResult.name)
             }
             
-            // Result Source Diagnostic
             xmlData.acseServiceUser?.let { value ->
                 DetailRow("ACSE Service User", "${mapAcseServiceUser(value)} (0x$value)")
             }
             
-            // Initiate Response Details
             Text(
                 text = "Initiate Response:",
                 style = MaterialTheme.typography.labelMedium,
@@ -578,7 +546,6 @@ private fun AareDetails(message: AareMessage, globalFormat: ViewFormat) {
                 modifier = Modifier.padding(top = 8.dp)
             )
             
-            // Negotiated DLMS Version
             xmlData.negotiatedDlmsVersionNumber?.let { value ->
                 val versionNum = value.toIntOrNull(16)
                 DetailRow("Negotiated DLMS Version", "${versionNum ?: value} (0x$value)")
@@ -586,7 +553,6 @@ private fun AareDetails(message: AareMessage, globalFormat: ViewFormat) {
                 DetailRow(stringResource(Res.string.detail_dlms_version), message.initiateResponse.negotiatedDlmsVersionNumber.toString())
             }
             
-            // Negotiated Conformance
             if (xmlData.conformanceBits.isNotEmpty()) {
                 Text(
                     text = "Negotiated Conformance:",
@@ -603,7 +569,6 @@ private fun AareDetails(message: AareMessage, globalFormat: ViewFormat) {
                 }
             }
             
-            // Negotiated Max PDU Size
             xmlData.negotiatedMaxPduSize?.let { value ->
                 val sizeValue = value.toIntOrNull(16)
                 DetailRow("Negotiated Max PDU Size", "${sizeValue ?: value} bytes (0x$value)")
@@ -611,7 +576,6 @@ private fun AareDetails(message: AareMessage, globalFormat: ViewFormat) {
                 DetailRow(stringResource(Res.string.detail_max_pdu_size), message.initiateResponse.serverMaxReceivePduSize.toString())
             }
             
-            // VAA Name
             xmlData.vaaName?.let { value ->
                 val vaaNum = value.toIntOrNull(16)
                 DetailRow("VAA Name", "${vaaNum ?: value} (0x$value)")
@@ -620,7 +584,6 @@ private fun AareDetails(message: AareMessage, globalFormat: ViewFormat) {
             }
         }
         
-        // JSON/XML структура
         message.xmlStructure?.let { xmlStructure ->
             StructureViewer(
                 json = xmlStructure,
@@ -636,7 +599,6 @@ private fun GetRequestDetails(message: GetRequestMessage, globalFormat: ViewForm
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Основная информация
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -645,7 +607,6 @@ private fun GetRequestDetails(message: GetRequestMessage, globalFormat: ViewForm
             DetailRow(stringResource(Res.string.detail_request_type), message.requestType.name)
         }
         
-        // JSON структура
         message.xmlStructure?.let { xmlStructure ->
             StructureViewer(
                 json = xmlStructure,
@@ -663,11 +624,9 @@ private fun GetResponseDetails(message: GetResponseMessage, globalFormat: ViewFo
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Основная информация
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Invoke ID из XML или fallback
             xmlData.invokeIdAndPriority?.let { value ->
                 val invokeId = value.toIntOrNull(16)
                 DetailRow("Invoke ID & Priority", "${invokeId ?: value} (0x$value)")
@@ -678,7 +637,6 @@ private fun GetResponseDetails(message: GetResponseMessage, globalFormat: ViewFo
             DetailRow(stringResource(Res.string.detail_data_type), message.dataType)
             DetailRow(stringResource(Res.string.detail_response_type), message.responseType.name)
             
-            // Анализ OctetString из XML
             xmlData.octetStringValue?.let { octetString ->
                 val analysis = analyzeOctetString(octetString)
                 
@@ -689,20 +647,16 @@ private fun GetResponseDetails(message: GetResponseMessage, globalFormat: ViewFo
                     modifier = Modifier.padding(top = 8.dp)
                 )
                 
-                // Показываем primaryDisplay если есть читаемая интерпретация, иначе raw данные
                 if (analysis.hasReadableInterpretation && analysis.primaryDisplay != null) {
                     DetailRow("Data Content", analysis.primaryDisplay)
                     
-                    // Показываем дополнительные детали, если есть
                     analysis.structureInfo?.let { info ->
                         DetailRow("Data Type", info)
                     }
                     
-                    // Показываем длину только если это полезно
                     val length = analysis.rawHex.length / 2
                     DetailRow("Data Length", "$length bytes")
                     
-                    // Raw данные в отдельной секции (свернуто по умолчанию)
                     Text(
                         text = "Technical Details:",
                         style = MaterialTheme.typography.labelSmall,
@@ -718,7 +672,6 @@ private fun GetResponseDetails(message: GetResponseMessage, globalFormat: ViewFo
                         )
                     }
                 } else {
-                    // Fallback к анализу если нет уверенной интерпретации
                     SelectionContainer {
                         Text(
                             text = "Raw Data: ${analysis.rawHex}",
@@ -728,7 +681,6 @@ private fun GetResponseDetails(message: GetResponseMessage, globalFormat: ViewFo
                         )
                     }
                     
-                    // Показываем возможные интерпретации
                     analysis.asciiDecoding?.let { ascii ->
                         DetailRow("Possible ASCII", ascii)
                     }
@@ -750,7 +702,6 @@ private fun GetResponseDetails(message: GetResponseMessage, globalFormat: ViewFo
                 }
                 
             } ?: run {
-                // Fallback к старому отображению
                 SelectionContainer {
                     Text(
                         stringResource(Res.string.detail_data) + ": ${message.data}",
@@ -762,7 +713,6 @@ private fun GetResponseDetails(message: GetResponseMessage, globalFormat: ViewFo
             }
         }
         
-        // JSON/XML структура
         message.xmlStructure?.let { xmlStructure ->
             StructureViewer(
                 json = xmlStructure,
@@ -780,11 +730,9 @@ private fun ActionRequestDetails(message: ActionRequestMessage, globalFormat: Vi
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Основная информация
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Показываем данные из XML, если доступны, иначе из модели
             xmlData.invokeIdAndPriority?.let { value ->
                 val invokeId = value.toIntOrNull(16)
                 DetailRow("Invoke ID & Priority", "${invokeId ?: value} (0x$value)")
@@ -795,20 +743,18 @@ private fun ActionRequestDetails(message: ActionRequestMessage, globalFormat: Vi
             DetailRow(stringResource(Res.string.detail_method), message.method)
             DetailRow(stringResource(Res.string.detail_request_type), message.requestType.name)
             
-            // Детали из XML - Method Descriptor
             xmlData.classId?.let { value ->
                 val classIdNum = value.toIntOrNull(16)
                 DetailRow("Class ID", "${classIdNum ?: value} (0x$value)")
             }
             xmlData.instanceId?.let { value ->
-                DetailRow("Instance ID", value) // Instance ID лучше оставить как есть, так как это OBIS код
+                DetailRow("Instance ID", value)
             }
             xmlData.methodId?.let { value ->
                 val methodIdNum = value.toIntOrNull(16)
                 DetailRow("Method ID", "${methodIdNum ?: value} (0x$value)")
             }
             
-            // Method Invocation Parameters
             if (xmlData.octetStringValue != null || xmlData.uint32Value != null) {
                 Text(
                     text = "Method Invocation Parameters:",
@@ -820,7 +766,6 @@ private fun ActionRequestDetails(message: ActionRequestMessage, globalFormat: Vi
             
             xmlData.octetStringValue?.let { value ->
                 DetailRow("OctetString", value)
-                // Попробуем декодировать как ASCII если возможно
                 tryDecodeHexToAscii(value)?.let { decoded ->
                     DetailRow("OctetString (ASCII)", decoded)
                 }
@@ -832,12 +777,10 @@ private fun ActionRequestDetails(message: ActionRequestMessage, globalFormat: Vi
             }
             
             if (xmlData.invokeIdAndPriority == null && xmlData.classId == null) {
-                // Fallback к базовой информации только если XML данных нет
                 DetailRow(stringResource(Res.string.detail_parameters), stringResource(Res.string.detail_parameters_count, message.parameters.structure.size))
             }
         }
         
-        // JSON/XML структура
         message.xmlStructure?.let { xmlStructure ->
             StructureViewer(
                 json = xmlStructure,
@@ -853,7 +796,6 @@ private fun ActionResponseDetails(message: ActionResponseMessage, globalFormat: 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Основная информация
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -862,7 +804,6 @@ private fun ActionResponseDetails(message: ActionResponseMessage, globalFormat: 
             DetailRow(stringResource(Res.string.detail_response_type), message.responseType.name)
         }
         
-        // JSON структура
         message.xmlStructure?.let { xmlStructure ->
             StructureViewer(
                 json = xmlStructure,
@@ -900,7 +841,6 @@ private fun GenericMessageDetails(message: DlmsMessage, globalFormat: ViewFormat
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Основная информация
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -915,7 +855,6 @@ private fun GenericMessageDetails(message: DlmsMessage, globalFormat: ViewFormat
             )
         }
         
-        // JSON структура
         message.xmlStructure?.let { xmlStructure ->
             StructureViewer(
                 json = xmlStructure,

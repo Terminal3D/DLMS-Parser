@@ -6,7 +6,6 @@ import gurux.common.GXCommon
 fun main() {
     val translator = GXDLMSTranslator()
     
-    // Test data from the provided examples
     val testData = mapOf(
         "AARQ" to "60 3A A1 09 06 07 60 85 74 05 08 01 01 A6 02 04 00 8A 02 07 80 8B 07 60 85 74 05 08 02 01 AC 0A 80 08 30 30 30 30 30 30 30 33 BE 10 04 0E 01 00 00 00 06 5F 1F 04 00 20 7E 1F 01 F4",
         "AARE" to "61 29 A1 09 06 07 60 85 74 05 08 01 01 A2 03 02 01 00 A3 05 A1 03 02 01 00 BE 10 04 0E 08 00 06 5F 1F 04 00 00 1E 19 04 C8 00 07",

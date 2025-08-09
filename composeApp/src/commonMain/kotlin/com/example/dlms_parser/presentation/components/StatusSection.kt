@@ -22,7 +22,6 @@ fun StatusSection(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Error Display
         AnimatedVisibility(
             visible = errorMessage != null,
             enter = slideInVertically() + fadeIn(),
@@ -53,7 +52,6 @@ fun StatusSection(
             }
         }
         
-        // Export Status
         AnimatedVisibility(
             visible = exportStatus != null,
             enter = slideInVertically() + fadeIn(),

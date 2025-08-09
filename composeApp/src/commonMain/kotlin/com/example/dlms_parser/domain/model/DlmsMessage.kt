@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 sealed class DlmsMessage {
     abstract val rawData: String
     abstract val type: String
-    abstract val xmlStructure: String? // JSON представление XML структуры
-    abstract val originalXml: String? // Исходная XML структура
+    abstract val xmlStructure: String?
+    abstract val originalXml: String?
 }
 
 @Serializable

@@ -48,56 +48,55 @@ fun ResultsSection(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        stringResource(Res.string.results_title, messages.size),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.weight(1f, fill = false),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    
-                    Spacer(Modifier.width(8.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    FilledTonalButton(
+                        onClick = onExportJson,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                     ) {
-                        FilledTonalButton(onClick = onExportJson) {
-                            Text(
-                                when (selectedFormat) {
-                                    ViewFormat.JSON -> stringResource(Res.string.export_all_json)
-                                    ViewFormat.XML -> "Export All XML"
-                                },
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        
-                        FilledTonalButton(onClick = onCopyAsJson) {
-                            Text(
-                                when (selectedFormat) {
-                                    ViewFormat.JSON -> stringResource(Res.string.copy_all_json)
-                                    ViewFormat.XML -> "Copy All XML"
-                                },
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        
-                        OutlinedButton(onClick = onClearResults) {
-                            Text(
-                                stringResource(Res.string.clear_results),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
+                        Text(
+                            when (selectedFormat) {
+                                ViewFormat.JSON -> stringResource(Res.string.export_all_json)
+                                ViewFormat.XML -> "Export All XML"
+                            },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    FilledTonalButton(
+                        onClick = onCopyAsJson,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            when (selectedFormat) {
+                                ViewFormat.JSON -> stringResource(Res.string.copy_all_json)
+                                ViewFormat.XML -> "Copy All XML"
+                            },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    OutlinedButton(
+                        onClick = onClearResults,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            stringResource(Res.string.clear_results),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                 }
                 
-                // Global format toggle
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)

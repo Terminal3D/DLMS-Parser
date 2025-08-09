@@ -79,6 +79,14 @@ The application parses the following DLMS message types:
 gurux-dlms = "4.0.79"                    # DLMS parsing library
 kotlinx-serialization = "1.7.3"         # Data serialization
 koin = "4.1.0"                          # Dependency injection
+jackson = "2.18.2"                      # XML/JSON processing
+
+# UI dependencies
+compose-multiplatform = "1.8.2"         # UI framework
+material3 = "1.8.2"                     # Material 3 design
+
+# Data persistence
+datastore = "1.1.1"                     # Preferences storage
 
 # Testing dependencies
 kotlinx-coroutines-test = "1.10.2"      # Coroutine testing
@@ -94,10 +102,32 @@ The application includes test cases with real DLMS data examples for:
 - ActionRequest: `C3 01 42 00 12 00 00 2C 00 00 FF...`
 - ActionResponse: `C7 01 42 0C 00`
 
+## Key Features
+
+- **Multi-format Support**: JSON/XML toggle for data visualization and export
+- **Enhanced Message Analysis**: Detailed parsing of ActionRequest, AARE, AARQ, and GetResponse messages
+- **Intelligent OctetString Analysis**: Automatic detection of timestamps, OBIS codes, ASCII text, and structured data
+- **Smart Display Logic**: Human-readable values first, hex values in parentheses, hiding raw data when confident interpretation exists
+- **Data Persistence**: History and theme preferences saved using DataStore
+- **Responsive UI**: Adaptive button layout for different screen sizes
+- **Cross-platform Packaging**: DMG (macOS), MSI (Windows), DEB (Linux), and universal JAR support
+
+## UI Components
+
+### Core Components
+- **StructureViewer**: Unified JSON/XML viewer with syntax highlighting and collapsible sections
+- **MessageComponents**: Enhanced displays for different DLMS message types with detailed field extraction
+- **ResultsSection**: Adaptive layout with format toggle and export functionality
+
+### Data Processing
+- **XmlToJsonConverter**: Professional Jackson-based XML to JSON conversion with fallback handling
+- **OctetStringAnalysis**: Multi-format data interpretation (timestamps, OBIS codes, ASCII, structures)
+
 ## Development Notes
 
 - **Platform-specific code**: Gurux.DLMS integration is JVM-only in `jvmMain`
-- **State management**: Uses Compose State and ViewModel pattern
-- **Error handling**: ParseResult wrapper for safe error handling
-- **UI validation**: Real-time hex format validation
-- **Testability**: Full unit test coverage with sample data
+- **State management**: Uses Compose State and ViewModel pattern with Koin DI
+- **Error handling**: ParseResult wrapper for safe error handling with detailed user feedback
+- **UI validation**: Real-time hex format validation with visual feedback
+- **Data persistence**: Cross-platform DataStore with fallback paths for Windows packaging
+- **Testability**: Comprehensive unit test coverage with real DLMS sample data
