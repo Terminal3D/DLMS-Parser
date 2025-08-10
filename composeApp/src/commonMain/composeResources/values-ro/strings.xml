@@ -16,11 +16,15 @@
     <string name="results_title">Mesaje analizate (%1$d)</string>
     <string name="export_all_json">Exportă toate JSON</string>
     <string name="copy_all_json">Copiază toate JSON</string>
+    <string name="export_all_xml">Exportă toate XML</string>
+    <string name="copy_all_xml">Copiază toate XML</string>
     <string name="clear_results">Șterge</string>
     
     <!-- Message Actions -->
     <string name="export_json">Exportă JSON</string>
     <string name="copy_json">Copiază JSON</string>
+    <string name="export_xml">Exportă XML</string>
+    <string name="copy_xml">Copiază XML</string>
     <string name="copy_raw">Copiază Raw</string>
     
     <!-- Status Messages -->

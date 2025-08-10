@@ -16,11 +16,15 @@
     <string name="results_title">Распарсенные сообщения (%1$d)</string>
     <string name="export_all_json">Экспорт всех JSON</string>
     <string name="copy_all_json">Копировать все JSON</string>
+    <string name="export_all_xml">Экспорт всех XML</string>
+    <string name="copy_all_xml">Копировать все XML</string>
     <string name="clear_results">Очистить</string>
     
     <!-- Message Actions -->
     <string name="export_json">Экспорт JSON</string>
     <string name="copy_json">Копировать JSON</string>
+    <string name="export_xml">Экспорт XML</string>
+    <string name="copy_xml">Копировать XML</string>
     <string name="copy_raw">Копировать Raw</string>
     
     <!-- Status Messages -->

@@ -16,11 +16,15 @@
     <string name="results_title">Parsed Messages (%1$d)</string>
     <string name="export_all_json">Export All JSON</string>
     <string name="copy_all_json">Copy All JSON</string>
+    <string name="export_all_xml">Export All XML</string>
+    <string name="copy_all_xml">Copy All XML</string>
     <string name="clear_results">Clear</string>
     
     <!-- Message Actions -->
     <string name="export_json">Export JSON</string>
     <string name="copy_json">Copy JSON</string>
+    <string name="export_xml">Export XML</string>
+    <string name="copy_xml">Copy XML</string>
     <string name="copy_raw">Copy Raw</string>
     
     <!-- Status Messages -->

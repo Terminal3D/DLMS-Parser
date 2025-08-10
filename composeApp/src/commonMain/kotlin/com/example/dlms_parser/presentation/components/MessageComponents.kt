@@ -362,7 +362,7 @@ fun MessageCard(
                         Text(
                             when (globalFormat) {
                                 ViewFormat.JSON -> stringResource(Res.string.export_json)
-                                ViewFormat.XML -> "Export XML"
+                                ViewFormat.XML -> stringResource(Res.string.export_xml)
                             },
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 1,
@@ -380,7 +380,7 @@ fun MessageCard(
                         Text(
                             when (globalFormat) {
                                 ViewFormat.JSON -> stringResource(Res.string.copy_json)
-                                ViewFormat.XML -> "Copy XML"
+                                ViewFormat.XML -> stringResource(Res.string.copy_xml)
                             },
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 1,

@@ -1,5 +1,8 @@
 package com.example.dlms_parser.presentation.components
 
+import androidx.compose.animation.core.*
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,7 +11,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -59,7 +65,7 @@ fun ResultsSection(
                         Text(
                             when (selectedFormat) {
                                 ViewFormat.JSON -> stringResource(Res.string.export_all_json)
-                                ViewFormat.XML -> "Export All XML"
+                                ViewFormat.XML -> stringResource(Res.string.export_all_xml)
                             },
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -75,7 +81,7 @@ fun ResultsSection(
                         Text(
                             when (selectedFormat) {
                                 ViewFormat.JSON -> stringResource(Res.string.copy_all_json)
-                                ViewFormat.XML -> "Copy All XML"
+                                ViewFormat.XML -> stringResource(Res.string.copy_all_xml)
                             },
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -107,51 +113,11 @@ fun ResultsSection(
                         fontWeight = FontWeight.Medium
                     )
                     
-                    Card(
-                        modifier = Modifier.size(width = 120.dp, height = 36.dp),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            ViewFormat.entries.forEach { format ->
-                                val isSelected = format == selectedFormat
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    shape = RoundedCornerShape(18.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = if (isSelected) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            Color.Transparent
-                                        }
-                                    ),
-                                    onClick = { onFormatChange(format) }
-                                ) {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            format.getDisplayName(),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (isSelected) {
-                                                MaterialTheme.colorScheme.onPrimary
-                                            } else {
-                                                MaterialTheme.colorScheme.onSurfaceVariant
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    AnimatedFormatToggle(
+                        selectedFormat = selectedFormat,
+                        onFormatChange = onFormatChange,
+                        modifier = Modifier.size(width = 120.dp, height = 36.dp)
+                    )
                 }
             }
             
@@ -169,6 +135,89 @@ fun ResultsSection(
                         onCopyAsJson = onCopyMessageAsJson,
                         onExportAsJson = onExportMessageAsJson
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnimatedFormatToggle(
+    selectedFormat: ViewFormat,
+    onFormatChange: (ViewFormat) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val selectedIndex = ViewFormat.entries.indexOf(selectedFormat)
+    val animatedOffset by animateFloatAsState(
+        targetValue = selectedIndex.toFloat(),
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        )
+    )
+    
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+    val selectedColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val selectedTextColor = MaterialTheme.colorScheme.onPrimary
+    
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .drawBehind {
+                    val segmentWidth = size.width / ViewFormat.entries.size
+                    val indicatorLeft = animatedOffset * segmentWidth
+                    val indicatorWidth = segmentWidth
+                    
+                    drawRoundRect(
+                        color = selectedColor,
+                        topLeft = androidx.compose.ui.geometry.Offset(indicatorLeft + 2.dp.toPx(), 2.dp.toPx()),
+                        size = androidx.compose.ui.geometry.Size(indicatorWidth - 4.dp.toPx(), size.height - 4.dp.toPx()),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(16.dp.toPx())
+                    )
+                }
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                ViewFormat.entries.forEachIndexed { index, format ->
+                    val isSelected = format == selectedFormat
+                    val animatedTextColor by animateColorAsState(
+                        targetValue = if (isSelected) selectedTextColor else textColor,
+                        animationSpec = tween<Color>(durationMillis = 200)
+                    )
+                    val animatedFontWeight by animateFloatAsState(
+                        targetValue = if (isSelected) 700f else 400f,
+                        animationSpec = tween<Float>(durationMillis = 200)
+                    )
+                    
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        shape = RoundedCornerShape(16.dp),
+                        color = Color.Transparent,
+                        onClick = { onFormatChange(format) }
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = format.getDisplayName(),
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontWeight = FontWeight(animatedFontWeight.toInt())
+                                ),
+                                color = animatedTextColor
+                            )
+                        }
+                    }
                 }
             }
         }
